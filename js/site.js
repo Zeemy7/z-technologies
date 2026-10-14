@@ -6,20 +6,34 @@
 
   var toggle = document.querySelector(".nav-toggle");
   var nav = document.getElementById("site-nav");
+  var backdrop = document.createElement("button");
+  backdrop.className = "nav-backdrop";
+  backdrop.type = "button";
+  backdrop.setAttribute("aria-label", "Close menu");
+  backdrop.setAttribute("aria-hidden", "true");
+  backdrop.tabIndex = -1;
+  document.body.appendChild(backdrop);
+
+  function setMenu(open) {
+    if (!toggle || !nav) return;
+    nav.classList.toggle("is-open", open);
+    backdrop.classList.toggle("is-open", open);
+    backdrop.setAttribute("aria-hidden", open ? "false" : "true");
+    document.body.classList.toggle("nav-open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.setAttribute("aria-label", open ? "Close menu" : "Menu");
+  }
 
   function closeMenu() {
-    if (!toggle || !nav) return;
-    nav.classList.remove("is-open");
-    toggle.setAttribute("aria-expanded", "false");
-    toggle.textContent = "Menu";
+    setMenu(false);
   }
 
   if (toggle && nav) {
     toggle.addEventListener("click", function () {
-      var open = nav.classList.toggle("is-open");
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      toggle.textContent = open ? "Close" : "Menu";
+      setMenu(!nav.classList.contains("is-open"));
     });
+
+    backdrop.addEventListener("click", closeMenu);
 
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape") closeMenu();
@@ -27,6 +41,10 @@
 
     nav.addEventListener("click", function (event) {
       if (event.target.closest("a")) closeMenu();
+    });
+
+    window.addEventListener("resize", function () {
+      if (window.matchMedia("(min-width: 981px)").matches) closeMenu();
     });
   }
 
@@ -79,10 +97,7 @@
       var body = "Name: " + name + "\nEmail: " + email + "\n\n" + message;
       var href = "mailto:info@ztechnologiesltd.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
 
-      if (status) {
-        status.hidden = false;
-        status.textContent = "Your email app should open a draft to info@ztechnologiesltd.com. Nothing is delivered until you send that email. This website does not store form messages.";
-      }
+      if (status) status.hidden = true;
       window.location.href = href;
     });
   });
